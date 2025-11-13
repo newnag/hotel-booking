@@ -1,0 +1,518 @@
+openapi: 3.0.3
+info:
+  title: Calendar & Status API
+  description: API endpoints for calendar views and room status dashboards
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/api/admin
+    description: Local development
+  - url: https://hotel-booking.example.com/api/admin
+    description: Production
+
+paths:
+  /calendar/bookings:
+    get:
+      summary: Get calendar bookings
+      description: Retrieve all bookings for calendar display within a date range
+      tags:
+        - Calendar
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2025-11-01"
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2025-11-30"
+        - name: room_id
+          in: query
+          description: Filter by specific room
+          schema:
+            type: integer
+        - name: status
+          in: query
+          description: Filter by booking status
+          schema:
+            type: string
+            enum: [confirmed, cancelled, completed, all]
+            default: confirmed
+      responses:
+        '200':
+          description: List of bookings for calendar
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CalendarBooking'
+                  meta:
+                    type: object
+                    properties:
+                      total_bookings:
+                        type: integer
+                      date_range:
+                        type: object
+                        properties:
+                          start:
+                            type: string
+                            format: date
+                          end:
+                            type: string
+                            format: date
+        '403':
+          description: Forbidden - staff role required
+
+  /calendar/events:
+    get:
+      summary: Get calendar events (FullCalendar format)
+      description: Returns bookings in FullCalendar-compatible event format
+      tags:
+        - Calendar
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: start
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: end
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: FullCalendar events array
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FullCalendarEvent'
+
+  /status/overview:
+    get:
+      summary: Get overall room status
+      description: Dashboard showing current status of all meeting rooms
+      tags:
+        - Status
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Status overview of all rooms
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      summary:
+                        type: object
+                        properties:
+                          total_rooms:
+                            type: integer
+                            example: 10
+                          available_now:
+                            type: integer
+                            example: 6
+                          in_use_now:
+                            type: integer
+                            example: 3
+                          booked_soon:
+                            type: integer
+                            example: 1
+                            description: Rooms with bookings starting within 2 hours
+                      rooms:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/RoomStatus'
+                  generated_at:
+                    type: string
+                    format: date-time
+        '403':
+          description: Forbidden - staff role required
+
+  /status/rooms/{id}:
+    get:
+      summary: Get individual room status
+      description: Detailed status and schedule for a specific room
+      tags:
+        - Status
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Room status details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RoomStatusDetailed'
+        '404':
+          description: Room not found
+
+  /bookings/manage:
+    get:
+      summary: Get all bookings (admin view)
+      description: Retrieve all bookings with filtering for management
+      tags:
+        - Booking Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [confirmed, cancelled, completed, all]
+        - name: room_id
+          in: query
+          schema:
+            type: integer
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: search
+          in: query
+          description: Search by guest name or booking reference
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Paginated list of bookings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BookingDetailed'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+
+  /bookings/{id}/details:
+    get:
+      summary: Get booking details (admin view)
+      description: View complete details of any booking
+      tags:
+        - Booking Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Booking details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BookingDetailed'
+        '404':
+          description: Booking not found
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    CalendarBooking:
+      type: object
+      properties:
+        id:
+          type: integer
+        booking_ref:
+          type: string
+        room:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            location:
+              type: string
+        guest:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            email:
+              type: string
+        theme:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        start_datetime:
+          type: string
+          format: date-time
+        end_datetime:
+          type: string
+          format: date-time
+        attendee_count:
+          type: integer
+        status:
+          type: string
+          enum: [confirmed, cancelled, completed]
+
+    FullCalendarEvent:
+      type: object
+      description: Event format compatible with FullCalendar.js
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+          example: "Grand Ballroom - Corporate Meeting (John Doe)"
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        backgroundColor:
+          type: string
+          example: "#3788d8"
+        borderColor:
+          type: string
+          example: "#3788d8"
+        extendedProps:
+          type: object
+          properties:
+            booking_ref:
+              type: string
+            room_id:
+              type: integer
+            room_name:
+              type: string
+            guest_name:
+              type: string
+            attendee_count:
+              type: integer
+            status:
+              type: string
+
+    RoomStatus:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        location:
+          type: string
+          nullable: true
+        max_capacity:
+          type: integer
+        current_status:
+          type: string
+          enum: [available, in-use, booked-soon, maintenance]
+          example: "available"
+        current_booking:
+          type: object
+          nullable: true
+          description: Current active booking if in-use
+          properties:
+            booking_ref:
+              type: string
+            guest_name:
+              type: string
+            start_datetime:
+              type: string
+              format: date-time
+            end_datetime:
+              type: string
+              format: date-time
+        next_booking:
+          type: object
+          nullable: true
+          description: Next upcoming booking
+          properties:
+            booking_ref:
+              type: string
+            start_datetime:
+              type: string
+              format: date-time
+        upcoming_bookings_count:
+          type: integer
+          description: Number of upcoming bookings today
+
+    RoomStatusDetailed:
+      allOf:
+        - $ref: '#/components/schemas/RoomStatus'
+        - type: object
+          properties:
+            todays_schedule:
+              type: array
+              items:
+                type: object
+                properties:
+                  booking_ref:
+                    type: string
+                  guest_name:
+                    type: string
+                  start_datetime:
+                    type: string
+                    format: date-time
+                  end_datetime:
+                    type: string
+                    format: date-time
+                  attendee_count:
+                    type: integer
+                  theme:
+                    type: string
+                  status:
+                    type: string
+            availability_slots_today:
+              type: array
+              description: Free time slots remaining today
+              items:
+                type: object
+                properties:
+                  start_time:
+                    type: string
+                    format: time
+                  end_time:
+                    type: string
+                    format: time
+
+    BookingDetailed:
+      type: object
+      properties:
+        id:
+          type: integer
+        booking_ref:
+          type: string
+        user:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            email:
+              type: string
+            phone:
+              type: string
+        room:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            location:
+              type: string
+            max_capacity:
+              type: integer
+        theme:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        start_datetime:
+          type: string
+          format: date-time
+        end_datetime:
+          type: string
+          format: date-time
+        attendee_count:
+          type: integer
+        status:
+          type: string
+        notes:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        notifications_sent:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              sent_at:
+                type: string
+                format: date-time
+              status:
+                type: string
+
+    PaginationMeta:
+      type: object
+      properties:
+        current_page:
+          type: integer
+        from:
+          type: integer
+        last_page:
+          type: integer
+        per_page:
+          type: integer
+        to:
+          type: integer
+        total:
+          type: integer

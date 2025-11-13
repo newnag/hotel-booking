@@ -1,0 +1,45 @@
+{
+    "Welcome": "Welcome",
+    "Login": "Login",
+    "Register": "Register",
+    "Dashboard": "Dashboard",
+    "Logout": "Log Out",
+    "Profile": "Profile",
+    "My Profile": "My Profile",
+    "Back to Site": "Back to Site",
+    "Staff Panel": "Staff Panel",
+    "Admin Panel": "Admin Panel",
+    "Home": "Home",
+    "All rights reserved": "All rights reserved",
+    "Version": "Version",
+    
+    "Meeting Rooms": "Meeting Rooms",
+    "Bookings": "Bookings",
+    "Users": "Users",
+    "Settings": "Settings",
+    "Staff Dashboard": "Staff Dashboard",
+    "Admin Dashboard": "Admin Dashboard",
+    
+    "Available": "Available",
+    "Unavailable": "Unavailable",
+    "Max Capacity": "Max Capacity",
+    
+    "Booking Ref": "Booking Ref",
+    "Room": "Room",
+    "Guest": "Guest",
+    "Attendees": "Attendees",
+    "Start": "Start",
+    "End": "End",
+    "Theme": "Theme",
+    "Notes": "Notes",
+    
+    "Confirmed": "Confirmed",
+    "Cancelled": "Cancelled",
+    "Completed": "Completed",
+    
+    "Thai": "Thai",
+    "English": "English",
+    
+    "ADMIN SECTION": "ADMIN SECTION",
+    "QUICK LINKS": "QUICK LINKS"
+}

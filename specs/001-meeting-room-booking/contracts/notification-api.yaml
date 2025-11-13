@@ -1,0 +1,383 @@
+openapi: 3.0.3
+info:
+  title: Line Notification API
+  description: API endpoints for Line notification management
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/api/admin
+    description: Local development
+  - url: https://hotel-booking.example.com/api/admin
+    description: Production
+
+paths:
+  /notifications/history:
+    get:
+      summary: Get notification history
+      description: Retrieve history of all Line notifications sent
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, sent, failed, all]
+            default: all
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [booking_created, booking_confirmed, booking_cancelled, booking_reminder, all]
+            default: all
+        - name: recipient_type
+          in: query
+          schema:
+            type: string
+            enum: [staff, guest, all]
+            default: all
+        - name: booking_id
+          in: query
+          description: Filter by specific booking
+          schema:
+            type: integer
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Paginated notification history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LineNotification'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '403':
+          description: Forbidden - staff role required
+
+  /notifications/{id}/retry:
+    post:
+      summary: Retry failed notification
+      description: Retry sending a failed Line notification
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Notification queued for retry
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Notification queued for retry"
+                  data:
+                    $ref: '#/components/schemas/LineNotification'
+        '400':
+          description: Cannot retry notification (not failed status)
+        '404':
+          description: Notification not found
+        '403':
+          description: Forbidden - admin role required
+
+  /notifications/test:
+    post:
+      summary: Send test notification
+      description: Send a test Line notification to verify configuration
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - recipient_id
+                - message
+              properties:
+                recipient_id:
+                  type: integer
+                  description: User ID to send test notification
+                message:
+                  type: string
+                  example: "This is a test notification from Hotel Booking System"
+      responses:
+        '200':
+          description: Test notification sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Test notification sent successfully"
+                  data:
+                    $ref: '#/components/schemas/LineNotification'
+        '422':
+          description: Validation error (user has no Line ID)
+        '403':
+          description: Forbidden - admin role required
+
+  /notifications/settings:
+    get:
+      summary: Get notification settings
+      description: Retrieve current Line notification configuration
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Notification settings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/NotificationSettings'
+
+    put:
+      summary: Update notification settings
+      description: Configure which staff members receive notifications
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                enabled:
+                  type: boolean
+                  description: Master enable/disable for all notifications
+                staff_recipients:
+                  type: array
+                  description: Staff user IDs to receive booking notifications
+                  items:
+                    type: integer
+                notification_types:
+                  type: object
+                  description: Enable/disable specific notification types
+                  properties:
+                    booking_created:
+                      type: boolean
+                    booking_confirmed:
+                      type: boolean
+                    booking_cancelled:
+                      type: boolean
+                    booking_reminder:
+                      type: boolean
+      responses:
+        '200':
+          description: Settings updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Notification settings updated successfully"
+                  data:
+                    $ref: '#/components/schemas/NotificationSettings'
+        '403':
+          description: Forbidden - admin role required
+
+  /notifications/stats:
+    get:
+      summary: Get notification statistics
+      description: Statistics on notification delivery rates
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [today, week, month, year]
+            default: month
+      responses:
+        '200':
+          description: Notification statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      total_sent:
+                        type: integer
+                      total_failed:
+                        type: integer
+                      success_rate:
+                        type: number
+                        format: float
+                        example: 98.5
+                      average_delivery_time:
+                        type: number
+                        format: float
+                        description: Average delivery time in seconds
+                        example: 2.3
+                      by_type:
+                        type: object
+                        properties:
+                          booking_created:
+                            type: integer
+                          booking_confirmed:
+                            type: integer
+                          booking_cancelled:
+                            type: integer
+                          booking_reminder:
+                            type: integer
+                  period:
+                    type: string
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    LineNotification:
+      type: object
+      properties:
+        id:
+          type: integer
+        booking:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: integer
+            booking_ref:
+              type: string
+            room_name:
+              type: string
+        recipient:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            email:
+              type: string
+            line_id:
+              type: string
+        recipient_type:
+          type: string
+          enum: [staff, guest]
+        notification_type:
+          type: string
+          enum: [booking_created, booking_confirmed, booking_cancelled, booking_reminder]
+        message:
+          type: string
+        status:
+          type: string
+          enum: [pending, sent, failed]
+        sent_at:
+          type: string
+          format: date-time
+          nullable: true
+        error_message:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    NotificationSettings:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        staff_recipients:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              email:
+                type: string
+              line_id:
+                type: string
+        notification_types:
+          type: object
+          properties:
+            booking_created:
+              type: boolean
+            booking_confirmed:
+              type: boolean
+            booking_cancelled:
+              type: boolean
+            booking_reminder:
+              type: boolean
+        line_api_status:
+          type: string
+          enum: [connected, disconnected, error]
+        last_successful_send:
+          type: string
+          format: date-time
+          nullable: true
+
+    PaginationMeta:
+      type: object
+      properties:
+        current_page:
+          type: integer
+        from:
+          type: integer
+        last_page:
+          type: integer
+        per_page:
+          type: integer
+        to:
+          type: integer
+        total:
+          type: integer

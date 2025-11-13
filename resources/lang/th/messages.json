@@ -1,0 +1,45 @@
+{
+    "Welcome": "ยินดีต้อนรับ",
+    "Login": "เข้าสู่ระบบ",
+    "Register": "ลงทะเบียน",
+    "Dashboard": "แดชบอร์ด",
+    "Logout": "ออกจากระบบ",
+    "Profile": "โปรไฟล์",
+    "My Profile": "โปรไฟล์ของฉัน",
+    "Back to Site": "กลับไปยังเว็บไซต์",
+    "Staff Panel": "แผงเจ้าหน้าที่",
+    "Admin Panel": "แผงผู้ดูแลระบบ",
+    "Home": "หน้าหลัก",
+    "All rights reserved": "สงวนลิขสิทธิ์",
+    "Version": "เวอร์ชัน",
+    
+    "Meeting Rooms": "ห้องประชุม",
+    "Bookings": "การจอง",
+    "Users": "ผู้ใช้งาน",
+    "Settings": "การตั้งค่า",
+    "Staff Dashboard": "แดชบอร์ดเจ้าหน้าที่",
+    "Admin Dashboard": "แดชบอร์ดผู้ดูแลระบบ",
+    
+    "Available": "ว่าง",
+    "Unavailable": "ไม่ว่าง",
+    "Max Capacity": "ความจุสูงสุด",
+    
+    "Booking Ref": "เลขที่การจอง",
+    "Room": "ห้อง",
+    "Guest": "ผู้จอง",
+    "Attendees": "จำนวนผู้เข้าร่วม",
+    "Start": "เริ่ม",
+    "End": "สิ้นสุด",
+    "Theme": "ธีมการตกแต่ง",
+    "Notes": "หมายเหตุ",
+    
+    "Confirmed": "ยืนยันแล้ว",
+    "Cancelled": "ยกเลิกแล้ว",
+    "Completed": "เสร็จสิ้น",
+    
+    "Thai": "ไทย",
+    "English": "อังกฤษ",
+    
+    "ADMIN SECTION": "ส่วนผู้ดูแลระบบ",
+    "QUICK LINKS": "ลิงก์ด่วน"
+}

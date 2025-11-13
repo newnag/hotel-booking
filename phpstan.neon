@@ -1,0 +1,8 @@
+parameters:
+    level: 3
+    paths:
+        - app
+    excludePaths:
+        - database/migrations/*
+    ignoreErrors:
+        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Builder#'

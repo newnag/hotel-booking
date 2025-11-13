@@ -1,0 +1,340 @@
+openapi: 3.0.3
+info:
+  title: Meeting Room Booking API
+  description: API endpoints for guest booking operations
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/api
+    description: Local development
+  - url: https://hotel-booking.example.com/api
+    description: Production
+
+paths:
+  /rooms/search:
+    get:
+      summary: Search available meeting rooms
+      description: Find rooms available for a specific date/time with minimum capacity
+      tags:
+        - Booking
+      parameters:
+        - name: start_datetime
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+          example: "2025-11-15T09:00:00"
+        - name: end_datetime
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+          example: "2025-11-15T17:00:00"
+        - name: min_capacity
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          example: 20
+      responses:
+        '200':
+          description: List of available rooms
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MeetingRoom'
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      searched_at:
+                        type: string
+                        format: date-time
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /rooms/{id}/themes:
+    get:
+      summary: Get suggested decoration themes
+      description: Retrieve suggested decoration theme options (from config, not database)
+      tags:
+        - Booking
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of suggested themes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                    example: ["Corporate", "Wedding Reception", "Conference", "Seminar", "Workshop", "Cocktail Party"]
+        '404':
+          description: Room not found
+
+  /bookings:
+    post:
+      summary: Create a new booking
+      description: Book a meeting room with selected theme
+      tags:
+        - Booking
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - room_id
+                - start_datetime
+                - end_datetime
+                - attendee_count
+              properties:
+                room_id:
+                  type: integer
+                  example: 1
+                decoration_theme:
+                  type: string
+                  nullable: true
+                  maxLength: 255
+                  example: "Corporate"
+                  description: "Free text field - can be any theme name"
+                start_datetime:
+                  type: string
+                  format: date-time
+                  example: "2025-11-15T09:00:00"
+                end_datetime:
+                  type: string
+                  format: date-time
+                  example: "2025-11-15T17:00:00"
+                attendee_count:
+                  type: integer
+                  minimum: 1
+                  example: 25
+                notes:
+                  type: string
+                  nullable: true
+                  maxLength: 1000
+                  example: "Need projector and whiteboard"
+      responses:
+        '201':
+          description: Booking created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Booking'
+                  message:
+                    type: string
+                    example: "Booking confirmed successfully"
+        '422':
+          description: Validation error or room unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '409':
+          description: Booking conflict (room already booked)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Room is not available for the selected time slot"
+
+    get:
+      summary: Get user's bookings
+      description: Retrieve all bookings for the authenticated user
+      tags:
+        - Booking
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [confirmed, cancelled, completed, all]
+            default: all
+        - name: time_filter
+          in: query
+          schema:
+            type: string
+            enum: [upcoming, past, all]
+            default: all
+      responses:
+        '200':
+          description: List of user bookings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Booking'
+
+  /bookings/{id}:
+    get:
+      summary: Get booking details
+      description: Retrieve detailed information about a specific booking
+      tags:
+        - Booking
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Booking details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Booking'
+        '403':
+          description: Forbidden - not booking owner
+        '404':
+          description: Booking not found
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    MeetingRoom:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Grand Ballroom"
+        description:
+          type: string
+          nullable: true
+          example: "Large meeting space with natural lighting"
+        max_capacity:
+          type: integer
+          example: 200
+        location:
+          type: string
+          nullable: true
+          example: "2nd Floor"
+        is_active:
+          type: boolean
+          example: true
+
+    DecorationTheme:
+      type: object
+      description: "Deprecated - themes are now free text in bookings"
+      properties:
+        name:
+          type: string
+          example: "Corporate"
+
+    Booking:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 123
+        booking_ref:
+          type: string
+          example: "BK20251115001"
+        user:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            email:
+              type: string
+        room:
+          $ref: '#/components/schemas/MeetingRoom'
+        theme:
+          $ref: '#/components/schemas/DecorationTheme'
+          nullable: true
+        start_datetime:
+          type: string
+          format: date-time
+          example: "2025-11-15T09:00:00"
+        end_datetime:
+          type: string
+          format: date-time
+          example: "2025-11-15T17:00:00"
+        attendee_count:
+          type: integer
+          example: 25
+        status:
+          type: string
+          enum: [confirmed, cancelled, completed]
+          example: "confirmed"
+        notes:
+          type: string
+          nullable: true
+          example: "Need projector and whiteboard"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ValidationError:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "The given data was invalid."
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          example:
+            start_datetime:
+              - "The start datetime must be a date after now."
+            attendee_count:
+              - "The attendee count must not be greater than room capacity."

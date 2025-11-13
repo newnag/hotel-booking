@@ -1,0 +1,23 @@
+[Unit]
+Description=Laravel Queue Worker
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+Restart=always
+ExecStart=/usr/bin/php /var/www/hotel-booking/artisan queue:work database --sleep=3 --tries=3 --max-time=3600
+
+# Optional: Set environment variables
+# Environment="QUEUE_CONNECTION=database"
+
+# Restart service after 10 seconds if service crashes
+RestartSec=10
+
+# Output to journald
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

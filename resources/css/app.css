@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fix Bootstrap navbar collapse conflict with Tailwind */
+@layer utilities {
+    .navbar-collapse.collapse:not(.show) {
+        display: none !important;
+    }
+    
+    @media (min-width: 992px) {
+        .navbar-expand-lg .navbar-collapse {
+            display: flex !important;
+            flex-basis: auto;
+        }
+    }
+}
