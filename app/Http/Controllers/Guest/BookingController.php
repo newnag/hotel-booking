@@ -138,9 +138,10 @@ class BookingController extends Controller
             ->where('id', $id)
             ->firstOrFail();
 
-        // Check ownership
-        if ($booking->user_id !== auth()->id() && ! auth()->user()->isStaff()) {
-            abort(403, __('You do not have permission to view this booking.'));
+        // Check ownership - allow if user owns the booking OR user is staff/admin
+        if ((int)$booking->user_id !== (int)auth()->id() && ! auth()->user()->isStaff()) {
+            return redirect()->route('guest.booking.history')
+                ->with('error', __('You can only view your own bookings. Please check your booking history.'));
         }
 
         return view('guest.booking.show', compact('booking'));
@@ -154,7 +155,7 @@ class BookingController extends Controller
         $booking = \App\Models\Booking::findOrFail($id);
 
         // Check ownership
-        if ($booking->user_id !== auth()->id()) {
+        if ((int)$booking->user_id !== (int)auth()->id()) {
             abort(403, __('You do not have permission to cancel this booking.'));
         }
 
