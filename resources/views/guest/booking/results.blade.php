@@ -345,7 +345,7 @@
                     <div class="card room-available-card">
                         <div class="room-status-badge">
                             <i class="fas fa-check-circle"></i>
-                            <span>ห้องไม้ว่าง</span>
+                            <span>ห้องว่าง</span>
                         </div>
                         <div class="room-card-body">
                             <h3 class="room-name">{{ $room->name }}</h3>
