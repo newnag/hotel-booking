@@ -131,10 +131,10 @@
                                                     {{ $booking->booking_ref }}
                                                 </a>
                                             </td>
-                                            <td>{{ $booking->room->name }}</td>
+                                            <td>{{ $booking->room?->name ?? 'N/A' }}</td>
                                             <td>
-                                                {{ $booking->user->name }}<br>
-                                                <small class="text-muted">{{ $booking->user->email }}</small>
+                                                {{ $booking->user?->name ?? 'N/A' }}<br>
+                                                <small class="text-muted">{{ $booking->user?->email ?? '' }}</small>
                                             </td>
                                             <td>
                                                 {{ $booking->start_datetime->format('M d, Y') }}<br>
