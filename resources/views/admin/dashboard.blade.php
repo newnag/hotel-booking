@@ -155,8 +155,8 @@
                                                 {{ $booking->booking_ref }}
                                             </a>
                                         </td>
-                                        <td>{{ $booking->room->name }}</td>
-                                        <td>{{ $booking->user->name }}</td>
+                                        <td>{{ $booking->room?->name ?? 'N/A' }}</td>
+                                        <td>{{ $booking->user?->name ?? 'N/A' }}</td>
                                         <td>{{ $booking->start_datetime->format('d/m/Y H:i') }}</td>
                                         <td>
                                             @if($booking->status === 'confirmed')
