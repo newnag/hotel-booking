@@ -354,18 +354,20 @@
                                 <div class="room-detail-item">
                                     <i class="fas fa-map-marker-alt"></i>
                                     <span class="room-detail-label">ตำแหน่ง:</span>
-                                    <span class="room-detail-value">
-                                        ชั้น {{ $room->floor }} 
-                                        @if($room->building)
-                                            อาคาร{{ $room->building }}
-                                        @endif
-                                    </span>
+                                    <span class="room-detail-value">{{ $room->location ?? 'N/A' }}</span>
                                 </div>
                                 <div class="room-detail-item">
                                     <i class="fas fa-users"></i>
                                     <span class="room-detail-label">ความจุสูงสุด:</span>
-                                    <span class="room-detail-value">{{ $room->capacity }} คน</span>
+                                    <span class="room-detail-value">{{ $room->max_capacity }} คน</span>
                                 </div>
+                                @if($room->hourly_rate > 0)
+                                <div class="room-detail-item">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    <span class="room-detail-label">ราคา:</span>
+                                    <span class="room-detail-value">{{ number_format($room->hourly_rate, 2) }} บาท/ชั่วโมง</span>
+                                </div>
+                                @endif
                                 @if($room->description)
                                 <div class="room-detail-item">
                                     <i class="fas fa-info-circle"></i>

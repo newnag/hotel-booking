@@ -91,7 +91,47 @@
                                 <small class="form-text text-muted">
                                     จำนวนผู้เข้าร่วมประชุมสูงสุดที่สามารถรองรับได้
                                 </small>
-                            </div>                            {{-- Image Upload --}}
+                            </div>
+
+                            {{-- Location --}}
+                            <div class="form-group">
+                                <label for="location">ตำแหน่ง/สถานที่</label>
+                                <input type="text" 
+                                       class="form-control @error('location') is-invalid @enderror" 
+                                       id="location" 
+                                       name="location" 
+                                       value="{{ old('location', $room->location ?? '') }}"
+                                       placeholder="เช่น ชั้น 5 อาคาร A">
+                                @error('location')
+                                    <span class="invalid-feedback">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            {{-- Hourly Rate --}}
+                            <div class="form-group">
+                                <label for="hourly_rate">ราคาต่อชั่วโมง (บาท)</label>
+                                <div class="input-group">
+                                    <input type="number" 
+                                           class="form-control @error('hourly_rate') is-invalid @enderror" 
+                                           id="hourly_rate" 
+                                           name="hourly_rate" 
+                                           value="{{ old('hourly_rate', $room->hourly_rate ?? '0') }}"
+                                           min="0"
+                                           step="0.01"
+                                           placeholder="0.00">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">฿</span>
+                                    </div>
+                                    @error('hourly_rate')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <small class="form-text text-muted">
+                                    ราคาค่าเช่าห้องต่อชั่วโมง (ถ้าไม่มีค่าใช้จ่าย ให้ใส่ 0)
+                                </small>
+                            </div>
+
+                            {{-- Image Upload --}}
                             <div class="form-group">
                                 <label for="image">รูปภาพห้องประชุม</label>
                                 

@@ -20,6 +20,7 @@ class MeetingRoom extends Model
         'description',
         'max_capacity',
         'location',
+        'hourly_rate',
         'is_active',
         'image_path',
     ];
@@ -34,6 +35,7 @@ class MeetingRoom extends Model
         return [
             'is_active' => 'boolean',
             'max_capacity' => 'integer',
+            'hourly_rate' => 'decimal:2',
         ];
     }
 

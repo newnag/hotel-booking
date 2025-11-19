@@ -57,7 +57,7 @@ class RoomController extends Controller
      */
     public function store(RoomRequest $request)
     {
-        $data = $request->only(['name', 'description', 'max_capacity', 'is_active']);
+        $data = $request->only(['name', 'description', 'max_capacity', 'location', 'hourly_rate', 'is_active']);
 
         // Add image file if uploaded
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
@@ -119,7 +119,7 @@ class RoomController extends Controller
      */
     public function update(RoomRequest $request, MeetingRoom $room)
     {
-        $data = $request->only(['name', 'description', 'max_capacity', 'is_active']);
+        $data = $request->only(['name', 'description', 'max_capacity', 'location', 'hourly_rate', 'is_active']);
 
         // Add image file if uploaded
         if ($request->hasFile('image') && $request->file('image')->isValid()) {

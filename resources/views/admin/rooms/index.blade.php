@@ -88,6 +88,7 @@
                                     <th>ชื่อห้อง</th>
                                     <th>คำอธิบาย</th>
                                     <th style="width: 100px" class="text-center">ความจุ</th>
+                                    <th style="width: 120px" class="text-center">ราคา/ชม.</th>
                                     <th style="width: 100px" class="text-center">สถานะ</th>
                                     <th style="width: 200px" class="text-center">จัดการ</th>
                                 </tr>
@@ -117,6 +118,11 @@
                                         <td class="text-center">
                                             <span class="badge badge-info">
                                                 <i class="fas fa-users"></i> {{ $room->max_capacity }} ที่นั่ง
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge badge-success">
+                                                <i class="fas fa-money-bill-wave"></i> {{ number_format($room->hourly_rate, 2) }} ฿
                                             </span>
                                         </td>
                                         <td class="text-center">

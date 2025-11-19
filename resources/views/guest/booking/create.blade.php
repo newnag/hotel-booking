@@ -29,6 +29,12 @@
                         <i class="fas fa-map-marker-alt text-primary"></i>
                         <strong>{{ __('Location') }}:</strong> {{ $room->location }}
                     </div>
+                    @if($room->hourly_rate > 0)
+                    <div class="mb-2">
+                        <i class="fas fa-money-bill-wave text-success"></i>
+                        <strong>{{ __('Rate') }}:</strong> {{ number_format($room->hourly_rate, 2) }} {{ __('THB/hour') }}
+                    </div>
+                    @endif
                 </div>
             </div>
 
