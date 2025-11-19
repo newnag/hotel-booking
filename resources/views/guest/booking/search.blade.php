@@ -394,17 +394,17 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        <span class="badge badge-info">
+                                        <span class="badge" style="background-color: #17a2b8; color: white; font-size: 0.95rem; padding: 0.5rem 0.75rem;">
                                             <i class="fas fa-users"></i> {{ $room->max_capacity }} คน
                                         </span>
                                     </td>
                                     <td class="text-center">
                                         @if($room->hourly_rate > 0)
-                                        <span class="badge badge-success">
+                                        <span class="badge" style="background-color: #28a745; color: white; font-size: 0.95rem; padding: 0.5rem 0.75rem;">
                                             <i class="fas fa-money-bill-wave"></i> {{ number_format($room->hourly_rate, 2) }} ฿
                                         </span>
                                         @else
-                                        <span class="badge badge-secondary">
+                                        <span class="badge" style="background-color: #6c757d; color: white; font-size: 0.95rem; padding: 0.5rem 0.75rem;">
                                             <i class="fas fa-gift"></i> ฟรี
                                         </span>
                                         @endif
