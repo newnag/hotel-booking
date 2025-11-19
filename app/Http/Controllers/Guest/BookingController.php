@@ -29,8 +29,13 @@ class BookingController extends Controller
     public function search()
     {
         $decorationThemes = config('booking.decoration_themes', []);
+        
+        // Get all active rooms to display
+        $rooms = \App\Models\MeetingRoom::where('is_active', true)
+            ->orderBy('name')
+            ->get();
 
-        return view('guest.booking.search', compact('decorationThemes'));
+        return view('guest.booking.search', compact('decorationThemes', 'rooms'));
     }
 
     /**

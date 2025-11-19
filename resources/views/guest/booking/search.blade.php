@@ -364,6 +364,67 @@
                     </ul>
                 </div>
             </div>
+
+            <!-- Available Rooms Section -->
+            @if($rooms->count() > 0)
+            <div class="card tips-card mt-4">
+                <div class="tips-card-header">
+                    <i class="fas fa-door-open"></i>
+                    ห้องประชุมที่มีให้บริการ ({{ $rooms->count() }} ห้อง)
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ชื่อห้อง</th>
+                                    <th class="text-center">ความจุ</th>
+                                    <th class="text-center">ราคา/ชม.</th>
+                                    <th>สถานที่</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($rooms as $room)
+                                <tr>
+                                    <td>
+                                        <strong>{{ $room->name }}</strong>
+                                        @if($room->description)
+                                        <br>
+                                        <small class="text-muted">{{ Str::limit($room->description, 50) }}</small>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge badge-info">
+                                            <i class="fas fa-users"></i> {{ $room->max_capacity }} คน
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        @if($room->hourly_rate > 0)
+                                        <span class="badge badge-success">
+                                            <i class="fas fa-money-bill-wave"></i> {{ number_format($room->hourly_rate, 2) }} ฿
+                                        </span>
+                                        @else
+                                        <span class="badge badge-secondary">
+                                            <i class="fas fa-gift"></i> ฟรี
+                                        </span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-map-marker-alt text-primary"></i>
+                                        {{ $room->location ?? 'N/A' }}
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="alert alert-info mt-3 mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>หมายเหตุ:</strong> ราคาและความพร้อมของห้องอาจแตกต่างกันตามวันและเวลาที่ต้องการจอง กรุณากรอกข้อมูลด้านบนเพื่อค้นหาห้องว่าง
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 </div>
